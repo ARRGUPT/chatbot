@@ -1,0 +1,23 @@
+# Environment
+venv/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database and logs
+chatbot.db
+*.log
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Streamlit cache
+.streamlit/
+
+# VSCode
+.vscode/
+
+# my file
+1.basic_chatbot.ipynb
