@@ -11,13 +11,14 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_community.tools.ddg_search.tool import DuckDuckGoSearchRun
 from langchain_core.tools import tool
 import requests
+import streamlit as st
 
 # -------------------
 # 1. LLM
 # -------------------
 load_dotenv()
-groq_api_key = os.getenv('GROQ_API_KEY')
-api_key = os.getenv('ALPHAVANTAGE_API_KEY')
+groq_api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+api_key = st.secrets.get("ALPHAVANTAGE_API_KEY") or os.getenv("ALPHAVANTAGE_API_KEY")
 
 llm = ChatGroq(groq_api_key=groq_api_key, model="llama-3.3-70b-versatile")
 
