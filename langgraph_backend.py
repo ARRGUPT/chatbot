@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langgraph.graph.message import add_messages
-from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 import sqlite3
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_community.tools.ddg_search.tool import DuckDuckGoSearchRun
@@ -90,10 +90,18 @@ tool_node = ToolNode(tools)
 # 5. Checkpointer
 # -------------------
 # setting up connection with sqlite3 database
-conn = sqlite3.connect(database='chatbot.db', check_same_thread=False)
+# conn = sqlite3.connect(database='chatbot.db', check_same_thread=False)
 # SqliteSaver Checkpointer
-checkpointer = SqliteSaver(conn=conn)
+# checkpointer = SqliteSaver(conn=conn)
 
+try:
+    from langgraph.checkpoint.sqlite import SqliteSaver
+    conn = sqlite3.connect(database='chatbot.db', check_same_thread=False)
+    checkpointer = SqliteSaver(conn=conn)
+except ImportError:
+    from langgraph.checkpoint.memory import MemorySaver
+    checkpointer = MemorySaver()
+    print("Warning: Using MemorySaver instead of SqliteSaver")
 
 # -------------------
 # 6. Graph
@@ -115,8 +123,11 @@ chatbot = graph.compile(checkpointer=checkpointer)
 # 7. Helper
 # -------------------
 def retrieve_all_threads(): 
-    all_threads = set()
-    for checkpoint in checkpointer.list(None):
-        all_threads.add(checkpoint.config['configurable']['thread_id'])
-
-    return list(all_threads)
+    try:
+        all_threads = set()
+        for checkpoint in checkpointer.list(None):
+            all_threads.add(checkpoint.config['configurable']['thread_id'])
+        return list(all_threads)
+    except Exception as e:
+        print(f"Error retrieving threads: {e}")
+        return []
