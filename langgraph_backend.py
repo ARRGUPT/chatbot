@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langgraph.graph.message import add_messages
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 import sqlite3
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_community.tools.ddg_search.tool import DuckDuckGoSearchRun
@@ -95,7 +95,7 @@ tool_node = ToolNode(tools)
 # checkpointer = SqliteSaver(conn=conn)
 
 try:
-    from langgraph.checkpoint.sqlite import SqliteSaver
+    # from langgraph.checkpoint.sqlite import SqliteSaver
     conn = sqlite3.connect(database='chatbot.db', check_same_thread=False)
     checkpointer = SqliteSaver(conn=conn)
 except ImportError:
