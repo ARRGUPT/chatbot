@@ -17,8 +17,8 @@ import streamlit as st
 # 1. LLM
 # -------------------
 load_dotenv()
-groq_api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
-api_key = st.secrets.get("ALPHAVANTAGE_API_KEY") or os.getenv("ALPHAVANTAGE_API_KEY")
+groq_api_key = os.getenv('GROQ_API_KEY') or st.secrets["GROQ_API_KEY"]
+api_key = os.getenv('ALPHAVANTAGE_API_KEY') or st.secrets["ALPHAVANTAGE_API_KEY"]
 
 llm = ChatGroq(groq_api_key=groq_api_key, model="llama-3.3-70b-versatile")
 
@@ -53,14 +53,30 @@ def calculator(first_num: float, second_num: float, operation: str) -> dict:
 
 
 @tool
-def get_stock_price(symbol:str) -> dict:
+def get_stock_price(symbol: str) -> str:
     """
     Fetch latest stock price for a given symbol (e.g. 'AAPL', 'TSLA')
     using Alpha Vantage with API key in the URL.
+    Returns a clean, human-readable message instead of raw JSON.
     """
-    url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={api_key}"
-    r = requests.get(url)
-    return r.json()
+    try:
+        url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={api_key}"
+        r = requests.get(url)
+        data = r.json()
+
+        if "Global Quote" in data and data["Global Quote"]:
+            quote = data["Global Quote"]
+            symbol = quote.get("01. symbol", symbol)
+            price = quote.get("05. price", "N/A")
+            change = quote.get("09. change", "N/A")
+            percent = quote.get("10. change percent", "N/A")
+            return f"The current stock price of {symbol} is ${price} (Change: {change}, {percent})."
+        else:
+            return f"Could not find stock data for '{symbol}'. Please check the symbol and try again."
+
+    except Exception as e:
+        return f"Error fetching stock price: {e}"
+
 
 
 tools = [search_tool, get_stock_price, calculator]
