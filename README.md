@@ -45,6 +45,12 @@ ALPHAVANTAGE_API_KEY=your_alpha_vantage_key_here
 
 Note: The repository currently expects `GROQ_API_KEY` to be present. If the backend cannot authenticate to Groq, the chatbot will not generate responses.
 
+## Version
+```bash
+python --version
+3.11.8
+```
+
 ## Install and run (Windows PowerShell)
 
 1. Create and activate a virtual environment (optional but recommended):
